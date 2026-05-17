@@ -8,8 +8,8 @@ use crossbeam_queue::ArrayQueue;
 use polez::audio::AudioBuffer;
 use polez::detection::WatermarkDetector;
 use std::sync::Arc;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Mutex;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread::{self, JoinHandle, Thread};
 
 /// Polez returns immediately when `num_samples < 4096` (`watermark.rs`).
