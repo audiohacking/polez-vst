@@ -29,9 +29,11 @@ jobs:
           - os: macos-14
             name: macos-arm64
             archive: polez-plugins-macos-arm64.zip
+            pkg: polez-plugins-macos-installer.pkg
           - os: ubuntu-24.04
             name: linux-x64
             archive: polez-plugins-linux-x64.tar.gz
+            pkg: ""
 
     steps:
       - uses: actions/checkout@v4
@@ -101,11 +103,28 @@ jobs:
           fi
           ls -la "${{ matrix.archive }}"
 
-      - name: Upload artifact
+      - name: Build macOS .pkg installer
+        if: runner.os == 'macOS'
+        env:
+          VERSION: ${{ github.event.release.tag_name || github.event.inputs.tag }}
+        run: |
+          chmod +x scripts/build-installer-pkg.sh
+          ./scripts/build-installer-pkg.sh --version "${VERSION}"
+          cp release-artefacts/Polez-macOS-Installer.pkg "${{ matrix.pkg }}"
+
+      - name: Upload archive
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.archive }}
           path: ${{ matrix.archive }}
+          if-no-files-found: error
+
+      - name: Upload macOS installer pkg
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.pkg }}
+          path: ${{ matrix.pkg }}
           if-no-files-found: error
 
   publish:
@@ -127,6 +146,7 @@ jobs:
         with:
           files: |
             artifacts/polez-plugins-macos-arm64.zip
+            artifacts/polez-plugins-macos-installer.pkg
             artifacts/polez-plugins-linux-x64.tar.gz
           fail_on_unmatched_files: true
 
@@ -139,5 +159,6 @@ jobs:
           generate_release_notes: true
           files: |
             artifacts/polez-plugins-macos-arm64.zip
+            artifacts/polez-plugins-macos-installer.pkg
             artifacts/polez-plugins-linux-x64.tar.gz
           fail_on_unmatched_files: true

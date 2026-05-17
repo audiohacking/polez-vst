@@ -37,8 +37,15 @@ cargo test --workspace
 
 - **CI** (push/PR to `main`): tests on macOS + Linux, then `cargo truce build --clap --vst3`.
 - **Release** (publish a GitHub Release, or run the workflow manually): builds CLAP + VST3 for **macOS arm64** and **Linux x64** and attaches:
-  - `polez-plugins-macos-arm64.zip`
+  - `polez-plugins-macos-arm64.zip` — manual install (copy bundles)
+  - `polez-plugins-macos-installer.pkg` — system installer (CLAP + VST3 → `/Library/Audio/Plug-Ins/…`)
   - `polez-plugins-linux-x64.tar.gz`
+
+Build the macOS installer locally after `cargo truce build --clap --vst3`:
+
+```bash
+./scripts/build-installer-pkg.sh --version 0.1.0
+```
 
 Install [cargo-truce](https://github.com/truce-audio/truce) locally (`cargo install cargo-truce --version 0.42.1 --locked`) to build bundles yourself.
 
