@@ -1,8 +1,8 @@
 [vendor]
-name = "Polez"
-id = "audio.polez"
-url = "https://example.com"
-au_manufacturer = "Pole"
+name = "audiohacking"
+id = "com.audiohacking"
+url = "https://github.com/audiohacking"
+au_manufacturer = "Audi"
 
 [[plugin]]
 name = "Polez"
