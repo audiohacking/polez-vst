@@ -113,10 +113,10 @@ impl DetectWorker {
     /// Apply the newest finished analysis if it matches `sample_rate`.
     pub fn poll_results(&self, sample_rate: u32) -> Option<DetectResult> {
         let sr_bits = f64::from(sample_rate).to_bits();
-        if let Some(result) = self.channel.ready.pop() {
-            if result.sample_rate_bits == sr_bits {
-                return Some(result);
-            }
+        if let Some(result) = self.channel.ready.pop()
+            && result.sample_rate_bits == sr_bits
+        {
+            return Some(result);
         }
         None
     }
