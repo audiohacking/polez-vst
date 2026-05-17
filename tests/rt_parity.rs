@@ -35,7 +35,7 @@ fn detect_does_not_modify_audio() {
 fn detect_reports_confidence_after_history_fills() {
     let input = watermarked_mono(TEST_SR);
     let mut rt = RealtimeProcessor::new(TEST_SR, 1);
-    rt.reset(TEST_SR, 1);
+    rt.reset(TEST_SR, 1, BLOCK_SIZE);
     rt.set_mode(OperationMode::Detect);
 
     let block = BLOCK_SIZE;
@@ -47,6 +47,7 @@ fn detect_reports_confidence_after_history_fills() {
         rt.process_block(&mut channels);
         offset = end;
     }
+    rt.flush_detect_worker();
 
     assert!(
         rt.detection_confidence() >= 0.0 && rt.detection_confidence() <= 1.0,
@@ -140,7 +141,7 @@ fn multiple_block_sizes_produce_finite_output() {
     let input = watermarked_mono(TEST_SR);
     for block in [64usize, 128, 512, 1024, 2048] {
         let mut rt = RealtimeProcessor::new(TEST_SR, 1);
-        rt.reset(TEST_SR, 1);
+        rt.reset(TEST_SR, 1, block);
         rt.set_strength(CleanStrength::Standard);
         rt.set_mode(OperationMode::Clean);
         let out = render_clean_aligned(&mut rt, &input, block);

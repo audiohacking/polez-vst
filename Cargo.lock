@@ -2350,6 +2350,8 @@ name = "polez-vst"
 version = "0.1.0"
 dependencies = [
  "clap-sys",
+ "crossbeam-queue",
+ "ndarray",
  "polez",
  "truce",
  "truce-au",

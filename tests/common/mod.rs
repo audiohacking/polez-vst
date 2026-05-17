@@ -143,7 +143,7 @@ pub fn render_clean_aligned(
 
 pub fn rt_clean(samples: &[f32], sr: u32, strength: CleanStrength) -> Vec<f32> {
     let mut rt = RealtimeProcessor::new(sr, 1);
-    rt.reset(sr, 1);
+    rt.reset(sr, 1, BLOCK_SIZE);
     rt.set_strength(strength);
     rt.set_mode(OperationMode::Clean);
     render_clean_aligned(&mut rt, samples, BLOCK_SIZE)
@@ -151,16 +151,18 @@ pub fn rt_clean(samples: &[f32], sr: u32, strength: CleanStrength) -> Vec<f32> {
 
 pub fn rt_bypass(samples: &[f32], sr: u32) -> Vec<f32> {
     let mut rt = RealtimeProcessor::new(sr, 1);
-    rt.reset(sr, 1);
+    rt.reset(sr, 1, BLOCK_SIZE);
     rt.set_mode(OperationMode::Bypass);
     render_blocks(&mut rt, samples, BLOCK_SIZE, 0)
 }
 
 pub fn rt_detect(samples: &[f32], sr: u32) -> Vec<f32> {
     let mut rt = RealtimeProcessor::new(sr, 1);
-    rt.reset(sr, 1);
+    rt.reset(sr, 1, BLOCK_SIZE);
     rt.set_mode(OperationMode::Detect);
-    render_blocks(&mut rt, samples, BLOCK_SIZE, 0)
+    let out = render_blocks(&mut rt, samples, BLOCK_SIZE, 0);
+    rt.flush_detect_worker();
+    out
 }
 
 pub fn mean_abs_diff(a: &[f32], b: &[f32]) -> f32 {

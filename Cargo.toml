@@ -37,6 +37,8 @@ shell = ["truce/shell"]
 
 [dependencies]
 polez = { path = "third_party/polez", default-features = false }
+ndarray = "0.16"
+crossbeam-queue = "0.3"
 truce = { git = "https://github.com/truce-audio/truce", tag = "v0.42.1" }
 truce-gui = { git = "https://github.com/truce-audio/truce", tag = "v0.42.1" }
 truce-clap = { git = "https://github.com/truce-audio/truce", tag = "v0.42.1", optional = true }
