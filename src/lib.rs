@@ -2,10 +2,10 @@
 
 pub mod rt;
 
-pub use rt::{CleanStrength, OperationMode, RealtimeProcessor, CLEAN_WINDOW_SAMPLES};
+pub use rt::{CLEAN_WINDOW_SAMPLES, CleanStrength, OperationMode, RealtimeProcessor};
 use std::sync::Arc;
 use truce::prelude::*;
-use truce_gui::layout::{dropdown, meter, toggle, widgets, GridLayout};
+use truce_gui::layout::{GridLayout, dropdown, meter, toggle, widgets};
 
 #[derive(ParamEnum)]
 pub enum Mode {
@@ -162,7 +162,7 @@ mod tests {
     #[test]
     fn driver_passthrough_bypass() {
         use std::time::Duration;
-        use truce_test::{driver, InputSource, assertions};
+        use truce_test::{InputSource, assertions, driver};
 
         let result = driver!(Plugin)
             .duration(Duration::from_millis(50))

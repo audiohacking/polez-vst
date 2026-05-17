@@ -4,13 +4,13 @@
 //! be compared against the same expectations.
 
 use polez::audio::AudioBuffer;
-use polez::config::{defaults, FingerprintRemovalConfig};
+use polez::config::{FingerprintRemovalConfig, defaults};
 use polez::detection::WatermarkDetector;
 use polez::sanitization::fingerprint::FingerprintRemover;
 use polez::sanitization::pipeline::SanitizationMode;
 use polez::sanitization::spectral::SpectralCleaner;
 use polez::sanitization::stealth::StealthOps;
-use polez_vst::rt::{CleanStrength, OperationMode, RealtimeProcessor, CLEAN_WINDOW_SAMPLES};
+use polez_vst::rt::{CLEAN_WINDOW_SAMPLES, CleanStrength, OperationMode, RealtimeProcessor};
 
 pub const TEST_SR: u32 = 44_100;
 pub const BLOCK_SIZE: usize = 512;
@@ -18,9 +18,7 @@ pub const BLOCK_SIZE: usize = 512;
 pub fn sine_mono(freq: f32, sr: u32, duration_secs: f32) -> Vec<f32> {
     let len = (sr as f32 * duration_secs) as usize;
     (0..len)
-        .map(|i| {
-            (2.0 * std::f32::consts::PI * freq * i as f32 / sr as f32).sin() * 0.5
-        })
+        .map(|i| (2.0 * std::f32::consts::PI * freq * i as f32 / sr as f32).sin() * 0.5)
         .collect()
 }
 

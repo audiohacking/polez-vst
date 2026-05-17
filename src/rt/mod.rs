@@ -2,5 +2,5 @@
 
 mod processor;
 
-pub use processor::{CleanStrength, OperationMode, RealtimeProcessor};
 pub use processor::CLEAN_WINDOW_SAMPLES;
+pub use processor::{CleanStrength, OperationMode, RealtimeProcessor};

@@ -2,12 +2,12 @@
 
 mod common;
 
-use common::{
-    detect_confidence, mean_abs_diff, offline_clean, rms, rt_bypass, rt_clean, rt_detect,
-    sine_mono, watermarked_mono, BLOCK_SIZE, TEST_SR,
-};
 use common::render_clean_aligned;
-use polez_vst::rt::{CleanStrength, OperationMode, RealtimeProcessor, CLEAN_WINDOW_SAMPLES};
+use common::{
+    BLOCK_SIZE, TEST_SR, detect_confidence, mean_abs_diff, offline_clean, rms, rt_bypass, rt_clean,
+    rt_detect, sine_mono, watermarked_mono,
+};
+use polez_vst::rt::{CLEAN_WINDOW_SAMPLES, CleanStrength, OperationMode, RealtimeProcessor};
 
 #[test]
 fn polez_submodule_is_linked() {

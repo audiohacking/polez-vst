@@ -1,7 +1,7 @@
 //! Block-based overlap-add wrapper for polez sanitization and sliding-window detection.
 
 use polez::audio::AudioBuffer;
-use polez::config::{defaults, AdvancedFlags, FingerprintRemovalConfig};
+use polez::config::{AdvancedFlags, FingerprintRemovalConfig, defaults};
 use polez::detection::WatermarkDetector;
 use polez::error::Result;
 use polez::sanitization::fingerprint::FingerprintRemover;
@@ -179,8 +179,7 @@ impl RealtimeProcessor {
 
     fn clean_buffer(&mut self, buffer: &mut AudioBuffer) -> Result<()> {
         let mode = self.strength.to_polez();
-        let paranoid = self.paranoid
-            || self.strength == CleanStrength::Aggressive;
+        let paranoid = self.paranoid || self.strength == CleanStrength::Aggressive;
         let freq_ranges: &[(f64, f64)] = &[];
 
         match mode {

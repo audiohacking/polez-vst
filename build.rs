@@ -12,9 +12,7 @@ fn main() {
         return;
     }
 
-    println!(
-        "cargo:warning=polez submodule not found; initializing third_party/polez via git"
-    );
+    println!("cargo:warning=polez submodule not found; initializing third_party/polez via git");
 
     let status = Command::new("git")
         .args([
