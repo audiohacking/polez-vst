@@ -1,0 +1,13 @@
+[vendor]
+name = "Polez"
+id = "audio.polez"
+url = "https://example.com"
+au_manufacturer = "Pole"
+
+[[plugin]]
+name = "Polez"
+bundle_id = "polez-vst"
+crate = "polez-vst"
+category = "effect"
+fourcc = "Polz"
+au_tag = "Effects"

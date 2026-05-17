@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: "0"
+  TRUCE_TAG: v0.42.1
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fmt:
+    name: rustfmt
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+
+      - run: cargo fmt --all -- --check
+
+  test:
+    name: test (${{ matrix.label }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            label: linux
+            cache-key: linux
+          - os: macos-14
+            label: macos
+            cache-key: macos-14
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.cache-key }}
+          cache-bin: false
+
+      - name: Linux system deps
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential pkg-config \
+            libx11-dev libx11-xcb-dev libxcb1-dev libxcb-dri2-0-dev libxcb-icccm4-dev libxcursor-dev \
+            libxkbcommon-dev libxkbcommon-x11-dev libxrandr-dev \
+            libgl1-mesa-dev libvulkan-dev mesa-vulkan-drivers \
+            libasound2-dev libjack-jackd2-dev \
+            libfontconfig1-dev libfreetype-dev
+
+      - name: Cache cargo-truce
+        id: cache-cargo-truce
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/cargo-truce
+          key: cargo-truce-${{ env.TRUCE_TAG }}-${{ runner.os }}
+
+      - name: Install cargo-truce
+        if: steps.cache-cargo-truce.outputs.cache-hit != 'true'
+        run: |
+          cargo install cargo-truce \
+            --git https://github.com/truce-audio/truce \
+            --tag "${TRUCE_TAG}" \
+            --locked
+
+      - name: clippy
+        run: cargo clippy -p polez-vst --all-targets -- -D warnings
+
+      - name: Test polez-vst
+        run: cargo test -p polez-vst
+
+      - name: Test polez (library, no GUI)
+        run: cargo test -p polez --no-default-features --lib
+
+      - name: Build plugin bundles (CLAP + VST3)
+        run: cargo truce build --clap --vst3
+
+      - name: Verify bundles exist
+        run: |
+          test -d target/bundles/Polez.clap
+          test -d target/bundles/Polez.vst3
+          cat target/bundles/manifest.toml
