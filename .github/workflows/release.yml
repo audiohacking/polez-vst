@@ -111,6 +111,7 @@ jobs:
           chmod +x scripts/build-installer-pkg.sh
           ./scripts/build-installer-pkg.sh --version "${VERSION}"
           cp release-artefacts/Polez-macOS-Installer.pkg "${{ matrix.pkg }}"
+          test -f "${{ matrix.pkg }}"
 
       - name: Upload archive
         uses: actions/upload-artifact@v4
@@ -137,17 +138,25 @@ jobs:
           path: artifacts
           merge-multiple: true
 
-      - name: List artifacts
-        run: find artifacts -type f -ls
+      - name: Collect release assets
+        run: |
+          mkdir -p release-upload
+          find artifacts -type f \( \
+            -name 'polez-plugins-macos-arm64.zip' \
+            -o -name 'polez-plugins-macos-installer.pkg' \
+            -o -name 'polez-plugins-linux-x64.tar.gz' \
+            \) -exec cp {} release-upload/ \;
+          echo "Release assets:"
+          ls -la release-upload/
+          test -f release-upload/polez-plugins-macos-arm64.zip
+          test -f release-upload/polez-plugins-macos-installer.pkg
+          test -f release-upload/polez-plugins-linux-x64.tar.gz
 
       - name: Upload to GitHub Release (published event)
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            artifacts/polez-plugins-macos-arm64.zip
-            artifacts/polez-plugins-macos-installer.pkg
-            artifacts/polez-plugins-linux-x64.tar.gz
+          files: release-upload/*
           fail_on_unmatched_files: true
 
       - name: Upload to GitHub Release (manual)
@@ -157,8 +166,5 @@ jobs:
           tag_name: ${{ github.event.inputs.tag }}
           name: ${{ github.event.inputs.tag }}
           generate_release_notes: true
-          files: |
-            artifacts/polez-plugins-macos-arm64.zip
-            artifacts/polez-plugins-macos-installer.pkg
-            artifacts/polez-plugins-linux-x64.tar.gz
+          files: release-upload/*
           fail_on_unmatched_files: true
