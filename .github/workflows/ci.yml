@@ -96,11 +96,19 @@ jobs:
       - name: Test polez (library, no GUI)
         run: cargo test -p polez --no-default-features --lib
 
-      - name: Build plugin bundles (CLAP + VST3)
-        run: cargo truce build --clap --vst3
+      - name: Build plugin bundles
+        run: |
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            cargo truce build --clap --vst3 --au2
+          else
+            cargo truce build --clap --vst3
+          fi
 
       - name: Verify bundles exist
         run: |
           test -d target/bundles/Polez.clap
           test -d target/bundles/Polez.vst3
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            test -d target/bundles/Polez.component
+          fi
           cat target/bundles/manifest.toml

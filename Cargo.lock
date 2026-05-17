@@ -2352,6 +2352,7 @@ dependencies = [
  "clap-sys",
  "polez",
  "truce",
+ "truce-au",
  "truce-clap",
  "truce-gui",
  "truce-standalone",
@@ -3612,6 +3613,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "truce-au"
+version = "0.42.1"
+source = "git+https://github.com/truce-audio/truce?tag=v0.42.1#1e8e4a357bd336b36465b5bd341bcef9f6391616"
+dependencies = [
+ "cc",
+ "crossbeam-queue",
+ "truce-core",
+ "truce-params",
+ "truce-shim-types",
+]
+
+[[package]]
 name = "truce-build"
 version = "0.42.1"
 source = "git+https://github.com/truce-audio/truce?tag=v0.42.1#1e8e4a357bd336b36465b5bd341bcef9f6391616"
@@ -3750,6 +3763,11 @@ dependencies = [
  "truce-gui-types",
  "truce-params",
 ]
+
+[[package]]
+name = "truce-shim-types"
+version = "0.42.1"
+source = "git+https://github.com/truce-audio/truce?tag=v0.42.1#1e8e4a357bd336b36465b5bd341bcef9f6391616"
 
 [[package]]
 name = "truce-standalone"

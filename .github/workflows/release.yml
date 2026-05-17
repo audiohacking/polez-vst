@@ -74,8 +74,13 @@ jobs:
             --tag "${TRUCE_TAG}" \
             --locked
 
-      - name: Build CLAP + VST3 bundles
-        run: cargo truce build --clap --vst3
+      - name: Build plugin bundles
+        run: |
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            cargo truce build --clap --vst3 --au2
+          else
+            cargo truce build --clap --vst3
+          fi
 
       - name: Package plugins
         env:
@@ -87,6 +92,7 @@ jobs:
           Version: ${VERSION}
 
           Install:
+            AU v2 → /Library/Audio/Plug-Ins/Components/ (macOS, use .pkg installer)
             CLAP  → ~/.clap/  (macOS/Linux) or system CLAP folder
             VST3  → ~/Library/Audio/Plug-Ins/VST3/ (macOS)
                     ~/.vst3/ (Linux)
@@ -96,6 +102,9 @@ jobs:
           cp target/bundles/manifest.toml dist/
           cp -R target/bundles/Polez.clap dist/
           cp -R target/bundles/Polez.vst3 dist/
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            cp -R target/bundles/Polez.component dist/
+          fi
           if [ "${{ runner.os }}" = "macOS" ]; then
             (cd dist && zip -r -y "../${{ matrix.archive }}" .)
           else

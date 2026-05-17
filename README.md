@@ -11,7 +11,7 @@ Built with [truce](https://github.com/truce-audio/truce). Polez is vendored as a
 ```bash
 git clone --recurse-submodules https://github.com/<you>/polez-vst.git
 cd polez-vst
-cargo truce install --vst3
+cargo truce install --clap --vst3 --au2   # macOS: includes AU v2 (.component)
 ```
 
 If you already cloned without submodules, `cargo build` runs `git submodule update --init` automatically via `build.rs`. You can also run:
@@ -36,12 +36,12 @@ cargo test --workspace
 ## CI & releases
 
 - **CI** (push/PR to `main`): tests on macOS + Linux, then `cargo truce build --clap --vst3`.
-- **Release** (publish a GitHub Release, or run the workflow manually): builds CLAP + VST3 for **macOS arm64** and **Linux x64** and attaches:
+- **Release** (publish a GitHub Release, or run the workflow manually): builds plugins for **macOS arm64** (AU v2 + CLAP + VST3) and **Linux x64** (CLAP + VST3), and attaches:
   - `polez-plugins-macos-arm64.zip` — manual install (copy bundles)
-  - `polez-plugins-macos-installer.pkg` — system installer (CLAP + VST3 → `/Library/Audio/Plug-Ins/…`)
+  - `polez-plugins-macos-installer.pkg` — system installer (AU + CLAP + VST3 → `/Library/Audio/Plug-Ins/…`)
   - `polez-plugins-linux-x64.tar.gz`
 
-Build the macOS installer locally after `cargo truce build --clap --vst3`:
+Build the macOS installer locally after `cargo truce build --clap --vst3 --au2`:
 
 ```bash
 ./scripts/build-installer-pkg.sh --version 0.1.0
