@@ -1,0 +1,94 @@
+name: Nightly dependency updates
+
+on:
+  schedule:
+    # 04:15 UTC daily
+    - cron: "15 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: dependency-updates
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: "0"
+
+jobs:
+  update:
+    name: update dependencies
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Load Truce version
+        run: echo "TRUCE_TAG=$(tr -d '[:space:]' < .github/versions/truce-tag)" >> "$GITHUB_ENV"
+
+      - name: Linux system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential pkg-config \
+            libx11-dev libx11-xcb-dev libxcb1-dev libxcb-dri2-0-dev libxcb-icccm4-dev libxcursor-dev \
+            libxkbcommon-dev libxkbcommon-x11-dev libxrandr-dev \
+            libgl1-mesa-dev libvulkan-dev mesa-vulkan-drivers \
+            libasound2-dev libjack-jackd2-dev \
+            libfontconfig1-dev libfreetype-dev
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: deps-update-linux
+          cache-bin: false
+
+      - name: Run dependency update script
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: chmod +x scripts/update-dependencies.sh && ./scripts/update-dependencies.sh
+
+      - name: rustfmt
+        run: cargo fmt --all
+
+      - name: clippy
+        run: cargo clippy -p polez-vst --all-targets -- -D warnings
+
+      - name: Test polez-vst
+        run: cargo test -p polez-vst
+
+      - name: Test polez (library, no GUI)
+        run: cargo test -p polez --no-default-features --lib
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: deps/nightly
+          delete-branch: true
+          title: "chore(deps): nightly dependency updates"
+          commit-message: |
+            chore(deps): nightly dependency updates
+
+            - Truce git tag via .github/versions/truce-tag
+            - crates.io via cargo upgrade / cargo update
+            - polez submodule pointer
+          body: |
+            Automated nightly dependency refresh.
+
+            - **Truce**: latest release/tag from [truce-audio/truce](https://github.com/truce-audio/truce)
+            - **crates.io**: `cargo upgrade --workspace` + `cargo update --workspace`
+            - **polez submodule**: `third_party/polez` advanced to upstream `HEAD`
+
+            CI must pass before merging. Review Truce release notes for breaking changes.
+          labels: |
+            dependencies
+            automated
