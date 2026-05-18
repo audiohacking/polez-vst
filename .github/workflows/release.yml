@@ -82,6 +82,9 @@ jobs:
             cargo truce build --clap --vst3
           fi
 
+      - name: Verify bundles exist
+        run: chmod +x scripts/verify-bundles.sh && ./scripts/verify-bundles.sh
+
       - name: Package plugins
         env:
           VERSION: ${{ github.event.release.tag_name || github.event.inputs.tag }}

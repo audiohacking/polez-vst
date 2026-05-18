@@ -105,10 +105,4 @@ jobs:
           fi
 
       - name: Verify bundles exist
-        run: |
-          test -d target/bundles/Polez.clap
-          test -d target/bundles/Polez.vst3
-          if [ "${{ runner.os }}" = "macOS" ]; then
-            test -d target/bundles/Polez.component
-          fi
-          cat target/bundles/manifest.toml
+        run: chmod +x scripts/verify-bundles.sh && ./scripts/verify-bundles.sh
