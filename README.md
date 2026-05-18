@@ -6,6 +6,8 @@ Real-time VST3/CLAP effect wrapping [polez](https://github.com/szichedelic/polez
 
 Built with [truce](https://github.com/truce-audio/truce). Polez is vendored as a **git submodule** at `third_party/polez` (no sibling-repo layout required).
 
+Licensed under the [Apache License, Version 2.0](LICENSE). The polez submodule retains its own license (MIT).
+
 ## Clone & build
 
 ```bash
