@@ -59,6 +59,15 @@ sync_truce_tag_in_cargo_toml() {
   mv "$tmp" Cargo.toml
 }
 
+# Truce >= 0.44 links macOS CLAP/VST3 bundles from lib<stem>.a (see truce 0.44 release notes).
+ensure_truce_staticlib_crate_type() {
+  if grep -q 'staticlib' Cargo.toml; then
+    return 0
+  fi
+  log "Adding staticlib to [lib] crate-type (required by Truce 0.44+ on macOS)"
+  perl -i -pe 's/crate-type = \["cdylib", "rlib"\]/crate-type = ["cdylib", "staticlib", "rlib"]/' Cargo.toml
+}
+
 write_truce_tag_file() {
   local tag="$1"
   mkdir -p "$(dirname "$TRUCE_TAG_FILE")"
@@ -77,7 +86,10 @@ update_crates_io_deps() {
   fi
 
   log "Upgrading Cargo.toml version requirements to latest"
-  cargo upgrade --workspace
+  cargo upgrade --manifest-path Cargo.toml
+  if [ -f third_party/polez/Cargo.toml ]; then
+    cargo upgrade --manifest-path third_party/polez/Cargo.toml
+  fi
 
   log "Refreshing Cargo.lock"
   cargo update --workspace
@@ -107,6 +119,7 @@ main() {
   log "Truce tag: ${current} -> ${latest}"
   write_truce_tag_file "$latest"
   sync_truce_tag_in_cargo_toml "$latest"
+  ensure_truce_staticlib_crate_type
 
   update_crates_io_deps
   update_polez_submodule
